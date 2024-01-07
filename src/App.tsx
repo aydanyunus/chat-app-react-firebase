@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import { getFirestore } from "firebase/firestore";
 
@@ -21,7 +21,7 @@ export const auth = getAuth();
 export const firestore = getFirestore();
 
 const ChatRoom = () => {
-  return <>chat room</>;
+  return <><SignOut/></>;
 };
 
 const SignIn = () => {
@@ -34,7 +34,13 @@ const SignIn = () => {
 };
 
 const SignOut = () => {
-  return <>sign out</>;
+  return getAuth().currentUser && (
+    <button onClick={()=>signOut(auth)}>sign out</button>
+  )
+};
+
+const ChatMessage = () => {
+  return <>Chat Message</>;
 };
 
 function App() {
