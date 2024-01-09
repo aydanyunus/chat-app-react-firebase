@@ -1,9 +1,22 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
-import firebase from "firebase/compat/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+} from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  limit,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import React, { useState } from "react";
 
-import { useAuthState, useSignInWithGoogle } from "react-firebase-hooks/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 
 const firebaseConfig = {
@@ -19,9 +32,45 @@ initializeApp(firebaseConfig);
 
 export const auth = getAuth();
 export const firestore = getFirestore();
+const db = getFirestore(initializeApp(firebaseConfig));
 
 const ChatRoom = () => {
-  return <><SignOut/></>;
+  const messageRef = collection(db, "messages");
+  const q = query(messageRef, orderBy("createdAt"), limit(25));
+  const [messages] = useCollectionData(q, { idField: "id" } as any);
+  const [value, setValue] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const user = getAuth().currentUser;
+    if (user !== null) {
+      const { uid, photoURL } = user;
+
+      await addDoc(messageRef, {
+        text: value,
+        uid,
+        photoURL,
+        createdAt: serverTimestamp()
+      });
+
+      setValue('')
+    }
+  };
+  return (
+    <>
+      {messages && messages?.map((m) => <ChatMessage msg={m} key={m.id} />)}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="type here..."
+        />
+
+        <button type="submit">submit</button>
+      </form>
+    </>
+  );
 };
 
 const SignIn = () => {
@@ -34,19 +83,34 @@ const SignIn = () => {
 };
 
 const SignOut = () => {
-  return getAuth().currentUser && (
-    <button onClick={()=>signOut(auth)}>sign out</button>
-  )
+  return (
+    getAuth().currentUser && (
+      <button onClick={() => signOut(auth)}>sign out</button>
+    )
+  );
 };
 
-const ChatMessage = () => {
-  return <>Chat Message</>;
+const ChatMessage = ({msg}: any) => {
+  const { text, photoURL } = msg;
+  return (
+    <div>
+      <img src={photoURL} />
+      <p>{text}</p>
+    </div>
+  );
 };
 
 function App() {
   const [user] = useAuthState(auth);
 
-  return <>{user ? <ChatRoom /> : <SignIn />}</>;
+  return (
+    <>
+      <header>
+        <SignOut />
+      </header>
+      <section>{user ? <ChatRoom /> : <SignIn />}</section>
+    </>
+  );
 }
 
 export default App;
