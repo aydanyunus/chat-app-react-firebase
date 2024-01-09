@@ -35,8 +35,8 @@ export const firestore = getFirestore();
 const db = getFirestore(initializeApp(firebaseConfig));
 
 const ChatRoom = () => {
-  const messageRef = collection(db, "messages");
-  const q = query(messageRef, orderBy("createdAt"), limit(25));
+  const messagesRef = collection(db, "messages");
+  const q = query(messagesRef, orderBy("createdAt"), limit(25));
   const [messages] = useCollectionData(q, { idField: "id" } as any);
   const [value, setValue] = useState("");
 
@@ -46,7 +46,7 @@ const ChatRoom = () => {
     if (user !== null) {
       const { uid, photoURL } = user;
 
-      await addDoc(messageRef, {
+      await addDoc(messagesRef, {
         text: value,
         uid,
         photoURL,
@@ -64,12 +64,12 @@ const ChatRoom = () => {
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="type here..."
+          placeholder="type your message..."
           className="bg-[#3a3a3a] text-white outline-none w-full py-4 px-2"
         />
 
         <button type="submit" className="bg-[#38388f] text-white px-2">
-          submit
+          Submit
         </button>
       </form>
     </>
@@ -82,7 +82,16 @@ const SignIn = () => {
     signInWithPopup(auth, provider);
   };
 
-  return <button onClick={signInWithGoogle}>Sign In with Google</button>;
+  return (
+    <div className="flex justify-center">
+      <button
+        onClick={signInWithGoogle}
+        className="bg-white text-[#282c34] p-3"
+      >
+        Sign In with Google
+      </button>
+    </div>
+  );
 };
 
 const SignOut = () => {
@@ -92,7 +101,7 @@ const SignOut = () => {
         onClick={() => signOut(auth)}
         className="bg-[#282c34] text-white p-3"
       >
-        sign out
+        Sign Out
       </button>
     )
   );
@@ -114,11 +123,11 @@ function App() {
   return (
     <div className="bg-[#282c34]">
       <div className="w-2/4 mx-auto">
-        <header className="py-4 px-2 bg-black  text-white flex justify-between items-center">
+        <header className="py-3 px-2 h-16 bg-black fixed top-0 w-2/4 text-white flex justify-between items-center">
           <h1 className="text-2xl">🚀👾🗯️</h1>
           <SignOut />
         </header>
-        <section className="bg-[#282533] min-h-screen py-4 overflow-y-scroll">
+        <section className="bg-[#282533] min-h-screen pt-20 pb-10">
           {user ? <ChatRoom /> : <SignIn />}
         </section>
       </div>
