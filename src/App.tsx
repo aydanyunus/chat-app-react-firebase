@@ -13,6 +13,7 @@ import {
   limit,
   addDoc,
   serverTimestamp,
+  DocumentData,
 } from "firebase/firestore";
 import React, { useState } from "react";
 
@@ -34,10 +35,18 @@ export const auth = getAuth();
 export const firestore = getFirestore();
 const db = getFirestore(initializeApp(firebaseConfig));
 
+
+interface IMessage {
+  createdAt: Date;
+  photoURL: string;
+  text: string;
+  uid: string;
+}
+
 const ChatRoom = () => {
   const messagesRef = collection(db, "messages");
   const q = query(messagesRef, orderBy("createdAt"), limit(25));
-  const [messages] = useCollectionData(q, { idField: "id" } as any);
+  const [messages] = useCollectionData(q, { idField: "id" } as DocumentData);
   const [value, setValue] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +67,7 @@ const ChatRoom = () => {
   };
   return (
     <>
-      {messages && messages?.map((m) => <ChatMessage msg={m} key={m.id} />)}
+      {messages && messages?.map((m) => <ChatMessage msg={m as IMessage} key={m.id} />)}
       <form onSubmit={handleSubmit} className="fixed bottom-0 flex w-2/4">
         <input
           type="text"
@@ -107,7 +116,7 @@ const SignOut = () => {
   );
 };
 
-const ChatMessage = ({ msg }: any) => {
+const ChatMessage = ({ msg }: {msg: IMessage}) => {
   const { text, photoURL } = msg;
   return (
     <div className="px-2 flex mb-6 items-center gap-3">
