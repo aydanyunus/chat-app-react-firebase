@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 
 import { useCollectionData } from "react-firebase-hooks/firestore";
-import { db } from "../App";
+import { db } from "../firebase.config";
 
 
 const ChatRoom = () => {

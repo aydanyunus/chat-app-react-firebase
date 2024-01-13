@@ -1,8 +1,8 @@
-import { auth } from "../App";
 import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
+import { auth } from "../firebase.config";
 
 const SignIn = () => {
   const signInWithGoogle = () => {

@@ -2,7 +2,7 @@ import {
   getAuth,
   signOut,
 } from "firebase/auth";
-import { auth } from "../App";
+import { auth } from "../firebase.config";
 
 const SignOut = () => {
   return (
